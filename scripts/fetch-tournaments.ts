@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, type Prisma } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 
 config({ path: ".env.local" });
@@ -78,12 +78,12 @@ async function importTournament(t: TournamentListItem): Promise<number> {
         country: entry.country ?? null,
         placing: entry.placing,
         species: entry.decklist.map((p) => p.name),
-        roster: entry.decklist,
+        roster: entry.decklist as unknown as Prisma.InputJsonValue,
       },
       update: {
         placing: entry.placing,
         species: entry.decklist.map((p) => p.name),
-        roster: entry.decklist,
+        roster: entry.decklist as unknown as Prisma.InputJsonValue,
       },
     });
     imported++;
