@@ -1,6 +1,9 @@
 import { config } from "dotenv";
+import { writeFileSync } from "fs";
+import { resolve } from "path";
 import { PrismaClient, type Prisma } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
+import metaSnapshot from "../data/meta/latest.json";
 
 config({ path: ".env.local" });
 
@@ -151,6 +154,14 @@ async function main() {
   }
 
   console.log(`\nOK: ${totalTournaments} torneios processados, ${totalTeams} times importados/atualizados.`);
+
+  console.log("Atualizando lista de espécies...");
+  const rows = await prisma.tournamentTeam.findMany({ select: { species: true }, take: 100000 });
+  const names = new Set<string>(Object.keys((metaSnapshot as { pokemon: Record<string, unknown> }).pokemon));
+  rows.forEach((r) => r.species.forEach((n) => names.add(n)));
+  const sorted = [...names].sort((a, b) => a.localeCompare(b));
+  writeFileSync(resolve(__dirname, "../data/meta/species.json"), JSON.stringify(sorted));
+  console.log(`OK: ${sorted.length} espécies distintas.`);
 }
 
 main()

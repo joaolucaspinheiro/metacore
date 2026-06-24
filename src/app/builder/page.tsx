@@ -9,6 +9,7 @@ import { suggestTeammates } from "@/lib/meta/suggest";
 import { getAbilityDesc, getMoveDesc, getNatureEffect, getTier, getTypes, listItemNames } from "@/lib/pokedex";
 import { CompatBadge, SpriteImg, TierBadge, TypeBadge } from "@/components/pokemon/atoms";
 import { SlotSpeciesPicker } from "@/components/builder/SlotSpeciesPicker";
+import { SlotMovePicker } from "@/components/builder/SlotMovePicker";
 import { InfoTooltip } from "@/components/builder/InfoTooltip";
 import { SaveTeamModal } from "@/components/team/SaveTeamModal";
 import { CopyLinkButton } from "@/components/team/CopyLinkButton";
@@ -426,17 +427,17 @@ function BuilderContent() {
                     <div className="grid grid-cols-2 gap-2">
                       {slot.moves.map((m, mi) => (
                         <div key={mi} className="flex items-center gap-1.5">
-                        <input
-                          value={m}
-                          onChange={(e) => {
-                            const moves = [...slot.moves] as [string, string, string, string];
-                            moves[mi] = e.target.value;
-                            upd(i, { moves });
-                          }}
-                          placeholder={`Golpe ${mi + 1}`}
-                          className="flex-1 min-w-0 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-emerald-500/60 transition-colors placeholder-zinc-600"
-                        />
-                        <InfoTooltip text={getMoveDesc(m)} />
+                          <SlotMovePicker
+                            species={slot.species as string}
+                            value={m}
+                            excluded={slot.moves.filter((_, j) => j !== mi)}
+                            onSelect={(name) => {
+                              const moves = [...slot.moves] as [string, string, string, string];
+                              moves[mi] = name;
+                              upd(i, { moves });
+                            }}
+                          />
+                          <InfoTooltip text={getMoveDesc(m)} />
                         </div>
                       ))}
                     </div>

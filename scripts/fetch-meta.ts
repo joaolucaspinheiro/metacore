@@ -1,6 +1,9 @@
 import { writeFileSync, mkdirSync } from "fs";
 import { dirname, resolve } from "path";
+import { Dex } from "@pkmn/dex";
 import type { MetaSnapshot, PokemonMetaEntry, WeightedEntry } from "../src/lib/meta/types";
+
+const gen9 = Dex.forGen(9);
 
 const MONTH = process.env.META_MONTH ?? "2026-05";
 const FORMAT = process.env.META_FORMAT ?? "gen9championsvgc2026regma";
@@ -28,15 +31,27 @@ interface RawDump {
   data: Record<string, RawEntry>;
 }
 
-function topN(weights: Record<string, number>, n: number, exclude?: string[]): WeightedEntry[] {
+function topN(
+  weights: Record<string, number>,
+  n: number,
+  exclude?: string[],
+  prettify?: (id: string) => string
+): WeightedEntry[] {
   const sum = Object.values(weights).reduce((a, b) => a + b, 0);
   if (!sum) return [];
   return Object.entries(weights)
     .filter(([name]) => name !== "" && !exclude?.includes(name))
-    .map(([name, weight]) => ({ name, percent: Math.round((weight / sum) * 10000) / 100 }))
+    .map(([name, weight]) => ({
+      name: prettify ? prettify(name) : name,
+      percent: Math.round((weight / sum) * 10000) / 100,
+    }))
     .sort((a, b) => b.percent - a.percent)
     .slice(0, n);
 }
+
+const prettyMove = (id: string) => gen9.moves.get(id)?.name ?? id;
+const prettyItem = (id: string) => gen9.items.get(id)?.name ?? id;
+const prettyAbility = (id: string) => gen9.abilities.get(id)?.name ?? id;
 
 async function main() {
   console.log(`Baixando ${URL} ...`);
@@ -61,9 +76,9 @@ async function main() {
       usagePercent: Math.round(entry.usage * 10000) / 100,
       rawCount: entry["Raw count"],
       teammates: topN(entry.Teammates, TOP_TEAMMATES, [name]),
-      topItems: topN(entry.Items, TOP_ITEMS),
-      topMoves: topN(entry.Moves, TOP_MOVES),
-      topAbilities: topN(entry.Abilities, TOP_ABILITIES),
+      topItems: topN(entry.Items, TOP_ITEMS, undefined, prettyItem),
+      topMoves: topN(entry.Moves, TOP_MOVES, undefined, prettyMove),
+      topAbilities: topN(entry.Abilities, TOP_ABILITIES, undefined, prettyAbility),
       topTeraTypes: topN(entry["Tera Types"], TOP_TERA, ["nothing"]),
     };
   }

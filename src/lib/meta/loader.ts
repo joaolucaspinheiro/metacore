@@ -1,4 +1,5 @@
 import metaSnapshot from "../../../data/meta/latest.json";
+import allSpecies from "../../../data/meta/species.json";
 import type { MetaSnapshot } from "./types";
 
 export function getMetaSnapshot(): MetaSnapshot {
@@ -6,5 +7,5 @@ export function getMetaSnapshot(): MetaSnapshot {
 }
 
 export function listSpeciesNames(): string[] {
-  return Object.keys(getMetaSnapshot().pokemon).sort();
+  return allSpecies as string[];
 }

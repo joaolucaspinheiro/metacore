@@ -152,3 +152,51 @@ export function getMoveDesc(name: string): string {
 export function listItemNames(): string[] {
   return gen9.items.all().map((i) => i.name).sort();
 }
+
+export function getMoveType(name: string): string {
+  try {
+    return gen9.moves.get(name)?.type ?? "";
+  } catch {
+    return "";
+  }
+}
+
+const movepoolCache = new Map<string, string[]>();
+
+export async function getMovepool(speciesName: string): Promise<string[]> {
+  if (movepoolCache.has(speciesName)) return movepoolCache.get(speciesName)!;
+
+  let ids = [toID(speciesName)];
+  try {
+    const species = gen9.species.get(speciesName);
+    if (species?.exists && species.baseSpecies && toID(species.baseSpecies) !== toID(speciesName)) {
+      ids.push(toID(species.baseSpecies));
+    }
+  } catch {
+    // ignora, usa só o id direto
+  }
+
+  let learnset: Record<string, unknown> | undefined;
+  for (const id of ids) {
+    try {
+      const l = await gen9.learnsets.get(id);
+      if (l?.exists && l.learnset) {
+        learnset = l.learnset;
+        break;
+      }
+    } catch {
+      // tenta o próximo id
+    }
+  }
+
+  const names = learnset
+    ? Object.keys(learnset)
+        .map((id) => gen9.moves.get(id)?.name)
+        .filter((n) => !!n)
+        .map((n) => String(n))
+        .sort()
+    : [];
+
+  movepoolCache.set(speciesName, names);
+  return names;
+}
