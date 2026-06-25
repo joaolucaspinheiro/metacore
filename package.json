@@ -9,7 +9,8 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "fetch-meta": "tsx scripts/fetch-meta.ts",
-    "fetch-tournaments": "tsx scripts/fetch-tournaments.ts"
+    "fetch-tournaments": "tsx scripts/fetch-tournaments.ts",
+    "build-species-list": "tsx scripts/build-species-list.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
