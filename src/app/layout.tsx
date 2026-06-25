@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Rajdhani } from "next/font/google";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { Header } from "@/components/layout/Header";
+import { LocaleProvider } from "@/lib/i18n/context";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -71,10 +72,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${rajdhani.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-zinc-950">
-        <SessionProvider>
-          <Header />
-          {children}
-        </SessionProvider>
+        <LocaleProvider>
+          <SessionProvider>
+            <Header />
+            {children}
+          </SessionProvider>
+        </LocaleProvider>
         <Analytics />
       </body>
     </html>

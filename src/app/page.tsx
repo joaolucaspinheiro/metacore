@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, Shield, Star, TrendingUp } from "lucide-react";
 import { getMetaSnapshot } from "@/lib/meta/loader";
 import { getTier, getTypes } from "@/lib/pokedex";
 import { SpriteImg, TierBadge, TypeBadge } from "@/components/pokemon/atoms";
+import { useT } from "@/lib/i18n/context";
 
 function regulationLabel(format: string): string {
   const match = format.match(/reg([a-z]+)$/i);
@@ -14,15 +17,16 @@ function regulationLabel(format: string): string {
 }
 
 export default function Home() {
+  const t = useT("home");
   const snapshot = getMetaSnapshot();
   const top3 = Object.values(snapshot.pokemon)
     .sort((a, b) => b.usagePercent - a.usagePercent)
     .slice(0, 3);
 
   const stats = [
-    { value: `${Object.keys(snapshot.pokemon).length}`, label: "Pokémon analisados" },
-    { value: `${(snapshot.totalBattles / 1_000_000).toFixed(1)}M`, label: "Batalhas analisadas" },
-    { value: regulationLabel(snapshot.format), label: "Formato atual" },
+    { value: `${Object.keys(snapshot.pokemon).length}`, label: t("statPokemon") },
+    { value: `${(snapshot.totalBattles / 1_000_000).toFixed(1)}M`, label: t("statBattles") },
+    { value: regulationLabel(snapshot.format), label: t("statFormat") },
   ];
 
   return (
@@ -47,7 +51,7 @@ export default function Home() {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-[11px] font-mono font-medium mb-8 tracking-widest uppercase">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Pokémon Champions VGC · {snapshot.sourceMonth}
+            {t("badge")} · {snapshot.sourceMonth}
           </div>
 
           <h1
@@ -63,9 +67,7 @@ export default function Home() {
           </h1>
 
           <p className="text-zinc-400 text-lg leading-relaxed max-w-md mb-10">
-            Você já tem alguns Pokémon, mas não sabe fechar o time. Cruzamos seus Pokémon com{" "}
-            <span className="text-zinc-200">dados reais de uso competitivo</span> e sugerimos os melhores
-            parceiros para o seu time VGC.
+            {t("heroDesc1")} <span className="text-zinc-200">{t("heroDescHighlight")}</span> {t("heroDesc2")}
           </p>
 
           <div className="flex flex-wrap gap-4 mb-14">
@@ -73,7 +75,7 @@ export default function Home() {
               href="/team-finder"
               className="inline-flex items-center gap-2.5 px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-base rounded-xl transition-all hover:shadow-[0_8px_32px_rgba(16,185,129,0.35)] active:scale-95"
             >
-              Encontrar meu time <ArrowRight className="w-5 h-5" />
+              {t("cta")} <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
 
@@ -116,41 +118,27 @@ export default function Home() {
                     ))}
                   </div>
                   <div className="text-zinc-500 text-xs font-mono">
-                    Meta usage: <span className="text-emerald-400 font-bold">{p.usagePercent}%</span>
+                    {t("metaUsage")}: <span className="text-emerald-400 font-bold">{p.usagePercent}%</span>
                   </div>
                 </div>
                 {i === 0 && (
                   <div className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold font-mono">
-                    TOP META
+                    {t("topMeta")}
                   </div>
                 )}
               </div>
             );
           })}
-          <div className="text-zinc-600 text-xs font-mono ml-5 mt-1">
-            Fonte: dados públicos de uso do Pokémon Showdown/Smogon
-          </div>
+          <div className="text-zinc-600 text-xs font-mono ml-5 mt-1">{t("source")}</div>
         </div>
       </div>
 
       <div className="border-t border-zinc-800/50 bg-zinc-900/30">
         <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-3 gap-8">
           {[
-            {
-              Icon: TrendingUp,
-              title: "Dados reais de meta",
-              desc: "Baseado em dados públicos de uso do Pokémon Showdown/Smogon — não achismo.",
-            },
-            {
-              Icon: Shield,
-              title: "Combinações reais",
-              desc: "Sugerimos parceiros com base em quão frequente cada dupla aparece em times de verdade.",
-            },
-            {
-              Icon: Star,
-              title: "Team Builder completo",
-              desc: "Habilidade, item, Tera Type, golpes e EVs em um só lugar.",
-            },
+            { Icon: TrendingUp, title: t("feature1Title"), desc: t("feature1Desc") },
+            { Icon: Shield, title: t("feature2Title"), desc: t("feature2Desc") },
+            { Icon: Star, title: t("feature3Title"), desc: t("feature3Desc") },
           ].map((f) => (
             <div key={f.title} className="flex gap-4">
               <div className="w-10 h-10 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0">

@@ -7,16 +7,19 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { LogIn, Pencil } from "lucide-react";
 import { SpriteImg } from "@/components/pokemon/atoms";
 import { NicknameModal } from "@/components/team/NicknameModal";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { updateNickname } from "@/server/actions/user-actions";
+import { useT } from "@/lib/i18n/context";
 
 export function Header() {
   const { data: session, status, update } = useSession();
   const pathname = usePathname();
   const [showNicknameModal, setShowNicknameModal] = useState(false);
+  const t = useT("header");
 
   const navLinks = [
-    { href: "/team-finder", label: "Team Finder" },
-    { href: "/builder", label: "Team Builder" },
+    { href: "/team-finder", label: t("teamFinder") },
+    { href: "/builder", label: t("teamBuilder") },
   ];
 
   const user = session?.user as { name?: string | null; nickname?: string | null } | undefined;
@@ -57,35 +60,38 @@ export function Header() {
           </nav>
         )}
 
-        {status === "authenticated" ? (
-          <div className="flex items-center gap-3 shrink-0">
-            <Link href="/my-teams" className="text-zinc-400 hover:text-zinc-200 text-sm hidden sm:block">
-              Meus times
-            </Link>
+        <div className="flex items-center gap-3 shrink-0">
+          {status === "authenticated" ? (
+            <>
+              <Link href="/my-teams" className="text-zinc-400 hover:text-zinc-200 text-sm hidden sm:block">
+                {t("myTeams")}
+              </Link>
+              <button
+                onClick={() => setShowNicknameModal(true)}
+                className="flex items-center gap-1.5 text-zinc-300 text-sm hidden sm:flex hover:text-white transition-colors group"
+                title={t("editNickname")}
+              >
+                {displayName}
+                <Pencil className="w-3 h-3 text-zinc-600 group-hover:text-zinc-400" />
+              </button>
+              <button
+                onClick={() => signOut()}
+                className="px-4 py-2 rounded-lg border border-zinc-700 text-zinc-300 text-sm font-medium hover:border-zinc-500 hover:text-white transition-all"
+              >
+                {t("signOut")}
+              </button>
+            </>
+          ) : (
             <button
-              onClick={() => setShowNicknameModal(true)}
-              className="flex items-center gap-1.5 text-zinc-300 text-sm hidden sm:flex hover:text-white transition-colors group"
-              title="Editar apelido"
+              onClick={() => signIn("google")}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-700 text-zinc-300 text-sm font-medium hover:border-zinc-500 hover:text-white transition-all"
             >
-              {displayName}
-              <Pencil className="w-3 h-3 text-zinc-600 group-hover:text-zinc-400" />
+              <LogIn className="w-4 h-4" />
+              <span className="hidden sm:block">{t("signInGoogle")}</span>
             </button>
-            <button
-              onClick={() => signOut()}
-              className="px-4 py-2 rounded-lg border border-zinc-700 text-zinc-300 text-sm font-medium hover:border-zinc-500 hover:text-white transition-all"
-            >
-              Sair
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => signIn("google")}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-700 text-zinc-300 text-sm font-medium hover:border-zinc-500 hover:text-white transition-all shrink-0"
-          >
-            <LogIn className="w-4 h-4" />
-            <span className="hidden sm:block">Entrar com Google</span>
-          </button>
-        )}
+          )}
+          <LanguageSwitcher />
+        </div>
       </div>
 
       <NicknameModal
