@@ -21,9 +21,43 @@ const rajdhani = Rajdhani({
   weight: ["500", "600", "700"],
 });
 
+const SITE_URL = "https://metacore-lovat.vercel.app";
+const TITLE = "MetaCore — Team Builder e Meta de Pokémon Champions VGC";
+const DESCRIPTION =
+  "Monte times de Pokémon Champions VGC com sugestões baseadas no meta real, busque times de torneios reais e exporte pro Pokepaste.";
+
 export const metadata: Metadata = {
-  title: "MetaCore",
-  description: "Monte e compartilhe times de VGC baseados no meta real",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: TITLE,
+    template: "%s · MetaCore",
+  },
+  description: DESCRIPTION,
+  keywords: [
+    "Pokemon Champions",
+    "VGC",
+    "team builder",
+    "pokepaste",
+    "competitive pokemon",
+    "meta",
+  ],
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: "MetaCore",
+    locale: "pt_BR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
