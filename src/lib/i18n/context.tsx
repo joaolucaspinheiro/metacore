@@ -42,10 +42,21 @@ export function useLocale(): LocaleContextValue {
   return ctx;
 }
 
+export function interpolate(str: string, vars?: Record<string, string | number>): string {
+  if (!vars) return str;
+  return Object.entries(vars).reduce(
+    (acc, [key, val]) => acc.replaceAll(`{{${key}}}`, String(val)),
+    str
+  );
+}
+
 export function useT<N extends Namespace>(namespace: N) {
   const { locale } = useLocale();
   return useCallback(
-    (key: keyof typeof dictionaries.pt[N]) => dictionaries[locale][namespace][key],
+    (key: keyof typeof dictionaries.pt[N], vars?: Record<string, string | number>) =>
+      interpolate(dictionaries[locale][namespace][key] as string, vars),
     [locale, namespace]
   );
 }
+
+export type { Namespace };

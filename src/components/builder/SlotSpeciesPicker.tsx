@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { listSpeciesNames } from "@/lib/meta/loader";
 import { getTypes } from "@/lib/pokedex";
 import { SpriteImg, TypeBadge } from "@/components/pokemon/atoms";
+import { useT } from "@/lib/i18n/context";
 
 export function SlotSpeciesPicker({
   excluded,
@@ -12,6 +13,7 @@ export function SlotSpeciesPicker({
   excluded: string[];
   onSelect: (name: string) => void;
 }) {
+  const t = useT("slotSpeciesPicker");
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
@@ -59,7 +61,7 @@ export function SlotSpeciesPicker({
         onKeyDown={onKeyDown}
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
-        placeholder="Escolher Pokémon para esse slot..."
+        placeholder={t("placeholder")}
         className="w-full bg-transparent text-zinc-200 placeholder-zinc-600 outline-none text-sm"
       />
       {open && query && filtered.length > 0 && (

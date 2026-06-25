@@ -15,6 +15,7 @@ import { SaveTeamModal } from "@/components/team/SaveTeamModal";
 import { CopyLinkButton } from "@/components/team/CopyLinkButton";
 import { PokepasteButton } from "@/components/team/PokepasteButton";
 import { createTeam, getTeamForEdit, updateTeam } from "@/server/actions/team-actions";
+import { useT } from "@/lib/i18n/context";
 
 const NATURES = [
   "Lonely", "Brave", "Adamant", "Naughty", "Bold", "Relaxed", "Impish",
@@ -96,6 +97,7 @@ function slotFromSpecies(name: string): Slot {
 }
 
 function StatPointsEditor({ value, onChange }: { value: StatPoints; onChange: (v: StatPoints) => void }) {
+  const t = useT("builder");
   const total = Object.values(value).reduce((a, b) => a + b, 0);
   const over = total > STAT_POINT_TOTAL;
 
@@ -107,7 +109,7 @@ function StatPointsEditor({ value, onChange }: { value: StatPoints; onChange: (v
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-zinc-500 text-[10px] font-mono uppercase tracking-widest">Stat Points</span>
+        <span className="text-zinc-500 text-[10px] font-mono uppercase tracking-widest">{t("statPoints")}</span>
         <span className={`text-xs font-mono ${over ? "text-red-400" : "text-zinc-500"}`}>
           {total}/{STAT_POINT_TOTAL}
         </span>
@@ -127,12 +129,13 @@ function StatPointsEditor({ value, onChange }: { value: StatPoints; onChange: (v
           </label>
         ))}
       </div>
-      {over && <p className="text-red-400 text-[11px] mt-1.5">Passou do limite de {STAT_POINT_TOTAL} pontos.</p>}
+      {over && <p className="text-red-400 text-[11px] mt-1.5">{t("overLimit", { n: STAT_POINT_TOTAL })}</p>}
     </div>
   );
 }
 
 function BuilderContent() {
+  const t = useT("builder");
   const searchParams = useSearchParams();
   const initialSpecies = (searchParams.get("species") ?? "").split(",").filter(Boolean);
   const teamIdParam = searchParams.get("teamId");
@@ -141,7 +144,7 @@ function BuilderContent() {
     Array.from({ length: 6 }, (_, i) => (initialSpecies[i] ? slotFromSpecies(initialSpecies[i]) : emptySlot()))
   );
   const [teamId, setTeamId] = useState<string | null>(null);
-  const [teamName, setTeamName] = useState("Meu time");
+  const [teamName, setTeamName] = useState(t("defaultTeamName"));
   const [teamIsPublic, setTeamIsPublic] = useState(false);
   const [teamSlug, setTeamSlug] = useState<string | null>(null);
   const [loadingTeam, setLoadingTeam] = useState(!!teamIdParam);
@@ -162,7 +165,7 @@ function BuilderContent() {
         setTeam(data.content.map((slot) => ({ ...slot, open: false })));
       })
       .catch((err) => {
-        if (active) setSaveError(err instanceof Error ? err.message : "Não foi possível carregar esse time.");
+        if (active) setSaveError(err instanceof Error ? err.message : t("cantLoadTeam"));
       })
       .finally(() => {
         if (active) setLoadingTeam(false);
@@ -225,7 +228,7 @@ function BuilderContent() {
       setTimeout(() => setJustSaved(false), 2500);
       router.replace(`/builder?teamId=${result.id}`);
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Erro ao salvar o time.");
+      setSaveError(err instanceof Error ? err.message : t("saveError"));
     } finally {
       setSaving(false);
     }
@@ -236,11 +239,9 @@ function BuilderContent() {
       <div className="max-w-5xl mx-auto px-4 py-10">
         <div className="flex items-start justify-between mb-8 gap-4">
           <div>
-            <h2 className="font-rajdhani text-5xl font-bold text-white mb-1 leading-tight">{teamId ? teamName : "Team Builder"}</h2>
+            <h2 className="font-rajdhani text-5xl font-bold text-white mb-1 leading-tight">{teamId ? teamName : t("defaultTitle")}</h2>
             <p className="text-zinc-500 text-sm">
-              {loadingTeam
-                ? "Carregando time..."
-                : "Configure habilidade, item, Tera Type, golpes e Stat Points de cada Pokémon."}
+              {loadingTeam ? t("loadingTeam") : t("configureDesc")}
               <span className="ml-2 text-zinc-600 font-mono">{filled}/6</span>
             </p>
           </div>
@@ -251,7 +252,7 @@ function BuilderContent() {
               <button
                 onClick={openSaveModal}
                 disabled={saving || filled === 0}
-                title={filled === 0 ? "Adicione pelo menos um Pokémon antes de salvar" : undefined}
+                title={filled === 0 ? t("addAtLeastOne") : undefined}
                 className={`flex items-center gap-2 px-5 py-2.5 font-bold rounded-xl text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
                   justSaved ? "bg-emerald-600 text-white" : "bg-emerald-500 hover:bg-emerald-400 text-zinc-950"
                 }`}
@@ -263,7 +264,7 @@ function BuilderContent() {
                 ) : (
                   <Star className="w-4 h-4" />
                 )}
-                {justSaved ? "Salvo!" : saving ? "Salvando..." : teamId ? "Salvar alterações" : "Salvar time"}
+                {justSaved ? t("saved") : saving ? t("savingLabel") : teamId ? t("saveChanges") : t("saveTeam")}
               </button>
             </div>
             {saveError && <p className="text-red-400 text-xs max-w-[220px] text-right">{saveError}</p>}
@@ -281,7 +282,7 @@ function BuilderContent() {
                 {slot.species ? <SpriteImg name={slot.species} size={48} /> : <Plus className="w-5 h-5 text-zinc-600" />}
               </div>
               <span className="text-zinc-600 text-[10px] font-mono">
-                {slot.species?.split("-")[0] ?? `Slot ${i + 1}`}
+                {slot.species?.split("-")[0] ?? t("slot", { n: i + 1 })}
               </span>
             </div>
           ))}
@@ -368,7 +369,7 @@ function BuilderContent() {
                   <div className="grid grid-cols-2 gap-3">
                     <label className="block">
                       <span className="text-zinc-500 text-[10px] font-mono uppercase tracking-widest mb-1.5 flex items-center">
-                        Habilidade <InfoTooltip text={getAbilityDesc(slot.ability)} />
+                        {t("ability")} <InfoTooltip text={getAbilityDesc(slot.ability)} />
                       </span>
                       <input
                         value={slot.ability}
@@ -377,7 +378,7 @@ function BuilderContent() {
                       />
                     </label>
                     <label className="block">
-                      <span className="text-zinc-500 text-[10px] font-mono uppercase tracking-widest block mb-1.5">Item</span>
+                      <span className="text-zinc-500 text-[10px] font-mono uppercase tracking-widest block mb-1.5">{t("item")}</span>
                       <input
                         value={slot.item}
                         list={`items-${i}`}
@@ -394,7 +395,7 @@ function BuilderContent() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <label className="block">
-                      <span className="text-zinc-500 text-[10px] font-mono uppercase tracking-widest block mb-1.5">Tera Type</span>
+                      <span className="text-zinc-500 text-[10px] font-mono uppercase tracking-widest block mb-1.5">{t("teraType")}</span>
                       <select
                         value={slot.tera}
                         onChange={(e) => upd(i, { tera: e.target.value })}
@@ -407,7 +408,7 @@ function BuilderContent() {
                     </label>
                     <label className="block">
                       <span className="text-zinc-500 text-[10px] font-mono uppercase tracking-widest mb-1.5 flex items-center">
-                        Nature <span className="text-zinc-600 ml-1">(Stat Alignment)</span>
+                        {t("nature")} <span className="text-zinc-600 ml-1">{t("statAlignment")}</span>
                         <InfoTooltip text={getNatureEffect(slot.nature)} />
                       </span>
                       <select
@@ -423,7 +424,7 @@ function BuilderContent() {
                   </div>
 
                   <div>
-                    <span className="text-zinc-500 text-[10px] font-mono uppercase tracking-widest block mb-1.5">Golpes</span>
+                    <span className="text-zinc-500 text-[10px] font-mono uppercase tracking-widest block mb-1.5">{t("moves")}</span>
                     <div className="grid grid-cols-2 gap-2">
                       {slot.moves.map((m, mi) => (
                         <div key={mi} className="flex items-center gap-1.5">
@@ -449,7 +450,7 @@ function BuilderContent() {
                     onClick={() => upd(i, emptySlot())}
                     className="text-red-400/60 hover:text-red-400 text-xs font-medium transition-colors"
                   >
-                    Remover do time
+                    {t("removeFromTeam")}
                   </button>
                 </div>
               )}
@@ -461,8 +462,8 @@ function BuilderContent() {
         {suggestions.length > 0 && (
           <div>
             <div className="mb-5">
-              <h3 className="font-rajdhani text-3xl font-bold text-white leading-tight">Sugestões pro seu time</h3>
-              <p className="text-zinc-500 text-sm mt-1">Baseado em dados reais de uso em dupla no meta atual.</p>
+              <h3 className="font-rajdhani text-3xl font-bold text-white leading-tight">{t("suggestionsTitle")}</h3>
+              <p className="text-zinc-500 text-sm mt-1">{t("suggestionsDesc")}</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {suggestions.map((s) => {
@@ -492,13 +493,13 @@ function BuilderContent() {
                       <CompatBadge pct={s.score} />
                     </div>
                     <div className="text-zinc-500 text-xs mb-3 leading-relaxed">
-                      Combina com: <span className="text-zinc-400">{why}</span>
+                      {t("matches")} <span className="text-zinc-400">{why}</span>
                     </div>
                     <button
                       onClick={() => addSuggestion(s.name)}
                       className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 text-xs font-medium transition-all"
                     >
-                      <Plus className="w-3.5 h-3.5" /> Adicionar ao time
+                      <Plus className="w-3.5 h-3.5" /> {t("addToTeam")}
                     </button>
                   </div>
                 );

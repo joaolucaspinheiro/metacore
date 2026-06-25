@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { spriteUrl, type Tier } from "@/lib/pokedex";
+import { useT } from "@/lib/i18n/context";
 
 const TYPE_BG: Record<string, string> = {
   Normal: "bg-zinc-500",
@@ -92,6 +93,7 @@ export function SpriteImg({ name, size = 72 }: { name: string; size?: number }) 
 }
 
 export function PlacingBadge({ placing }: { placing: number | null }) {
+  const t = useT("placingBadge");
   if (!placing) {
     return (
       <span className="px-2 py-0.5 rounded-full text-xs font-bold border font-mono leading-none text-zinc-500 bg-zinc-500/10 border-zinc-600/40">
@@ -99,7 +101,14 @@ export function PlacingBadge({ placing }: { placing: number | null }) {
       </span>
     );
   }
-  const label = placing === 1 ? "1º lugar" : placing <= 4 ? `Top 4` : placing <= 8 ? `Top 8` : `${placing}º`;
+  const label =
+    placing === 1
+      ? t("first")
+      : placing <= 4
+        ? t("top4")
+        : placing <= 8
+          ? t("top8")
+          : t("nth", { n: placing });
   const cls =
     placing === 1
       ? "text-yellow-300 bg-yellow-400/15 border-yellow-400/40"

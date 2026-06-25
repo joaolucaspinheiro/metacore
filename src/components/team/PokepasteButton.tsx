@@ -5,8 +5,10 @@ import { Check, ClipboardCopy } from "lucide-react";
 import { teamToPokepaste } from "@/lib/team/pokepaste";
 import { copyToClipboard } from "@/lib/clipboard";
 import type { TeamContent } from "@/lib/team/schema";
+import { useT } from "@/lib/i18n/context";
 
 export function PokepasteButton({ content }: { content: TeamContent }) {
+  const t = useT("pokepaste");
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState(false);
 
@@ -26,11 +28,11 @@ export function PokepasteButton({ content }: { content: TeamContent }) {
   return (
     <button
       onClick={copy}
-      title="Copia o time no formato Pokepaste — cole em pokepast.es para gerar um link"
+      title={t("tooltip")}
       className="flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-700 text-zinc-300 text-sm font-medium hover:border-zinc-500 hover:text-white transition-all"
     >
       {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <ClipboardCopy className="w-4 h-4" />}
-      {copied ? "Copiado!" : error ? "Erro ao copiar, tente de novo" : "Copiar Pokepaste"}
+      {copied ? t("copied") : error ? t("error") : t("copy")}
     </button>
   );
 }

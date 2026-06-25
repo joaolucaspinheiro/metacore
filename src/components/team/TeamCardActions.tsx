@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Loader2, Pencil, Trash2 } from "lucide-react";
 import { deleteTeam, setTeamPublic } from "@/server/actions/team-actions";
 import { CopyLinkButton } from "@/components/team/CopyLinkButton";
+import { useT } from "@/lib/i18n/context";
 
 export function TeamCardActions({
   teamId,
@@ -16,6 +17,8 @@ export function TeamCardActions({
   slug: string;
   initialPublic: boolean;
 }) {
+  const t = useT("common");
+  const tCard = useT("teamCardActions");
   const router = useRouter();
   const [isPublic, setIsPublic] = useState(initialPublic);
   const [busy, setBusy] = useState(false);
@@ -31,7 +34,7 @@ export function TeamCardActions({
   }
 
   async function handleDelete() {
-    if (!window.confirm("Excluir esse time? Essa ação não pode ser desfeita.")) return;
+    if (!window.confirm(tCard("deleteConfirm"))) return;
     setBusy(true);
     try {
       await deleteTeam(teamId);
@@ -47,7 +50,7 @@ export function TeamCardActions({
         href={`/builder?teamId=${teamId}`}
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 text-xs font-medium transition-all"
       >
-        <Pencil className="w-3.5 h-3.5" /> Editar
+        <Pencil className="w-3.5 h-3.5" /> {t("edit")}
       </Link>
       <button
         onClick={togglePublic}
@@ -58,14 +61,14 @@ export function TeamCardActions({
             : "bg-zinc-800 border-zinc-700 text-zinc-400"
         }`}
       >
-        {isPublic ? "Público" : "Privado"}
+        {isPublic ? t("public") : t("private")}
       </button>
       {isPublic && <CopyLinkButton slug={slug} />}
       <button
         onClick={handleDelete}
         disabled={busy}
         className="p-2 rounded-lg hover:bg-red-500/10 text-zinc-500 hover:text-red-400 transition-all disabled:opacity-50"
-        title="Excluir time"
+        title={tCard("deleteTitle")}
       >
         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
       </button>
