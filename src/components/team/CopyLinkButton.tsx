@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { Check, Link2 } from "lucide-react";
 import { copyToClipboard } from "@/lib/clipboard";
+import { useT } from "@/lib/i18n/context";
 
 export function CopyLinkButton({ slug }: { slug: string }) {
+  const t = useT("copyLink");
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState(false);
 
@@ -27,7 +29,7 @@ export function CopyLinkButton({ slug }: { slug: string }) {
       className="flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-700 text-zinc-300 text-sm font-medium hover:border-zinc-500 hover:text-white transition-all"
     >
       {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Link2 className="w-4 h-4" />}
-      {copied ? "Link copiado!" : error ? "Erro ao copiar" : "Copiar link"}
+      {copied ? t("copied") : error ? t("error") : t("copy")}
     </button>
   );
 }

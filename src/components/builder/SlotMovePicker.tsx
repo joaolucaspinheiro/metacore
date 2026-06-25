@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { getMovepool } from "@/lib/pokedex";
+import { useT } from "@/lib/i18n/context";
 
 export function SlotMovePicker({
   species,
@@ -15,6 +16,7 @@ export function SlotMovePicker({
   excluded: string[];
   onSelect: (name: string) => void;
 }) {
+  const t = useT("slotMovePicker");
   const [pool, setPool] = useState<string[] | null>(null);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -73,7 +75,7 @@ export function SlotMovePicker({
           }}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           onKeyDown={onKeyDown}
-          placeholder={loading ? "Carregando golpes..." : "Escolher golpe..."}
+          placeholder={loading ? t("loadingMoves") : t("choosePlaceholder")}
           className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-emerald-500/60 transition-colors placeholder-zinc-600 disabled:opacity-60"
         />
         {loading && <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2" />}
@@ -96,7 +98,7 @@ export function SlotMovePicker({
       )}
       {open && pool && pool.length === 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-500 text-xs z-50">
-          Não encontramos o movepool dessa espécie.
+          {t("noMovepool")}
         </div>
       )}
     </div>

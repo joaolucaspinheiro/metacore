@@ -12,6 +12,7 @@ import { InfoTooltip } from "@/components/builder/InfoTooltip";
 import { PokepasteButton } from "@/components/team/PokepasteButton";
 import { createTeam } from "@/server/actions/team-actions";
 import type { TeamContent } from "@/lib/team/schema";
+import { useLocale, useT } from "@/lib/i18n/context";
 
 function rosterToPokepasteContent(roster: RosterEntry[]): TeamContent {
   return Array.from({ length: 6 }, (_, i) => {
@@ -63,6 +64,8 @@ interface SearchResult {
 const MAX_SPECIES = 6;
 
 export default function TeamFinderPage() {
+  const t = useT("teamFinder");
+  const { locale } = useLocale();
   const [selected, setSelected] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -93,7 +96,7 @@ export default function TeamFinderPage() {
       const result = await createTeam(`${team.subtitle} — ${team.title}`, content, false);
       router.push(`/builder?teamId=${result.id}`);
     } catch (err) {
-      setImportError(err instanceof Error ? err.message : "Erro ao importar o time.");
+      setImportError(err instanceof Error ? err.message : t("importError"));
       setImportingId(null);
     }
   }
@@ -201,10 +204,8 @@ export default function TeamFinderPage() {
     <div className="min-h-screen bg-zinc-950 pt-20">
       <div className="max-w-5xl mx-auto px-4 py-10">
         <div className="mb-8">
-          <h2 className="font-rajdhani text-5xl font-bold text-white mb-2 leading-tight">Team Finder</h2>
-          <p className="text-zinc-500">
-            Busque times reais de torneios de Pokémon Champions, ou times públicos da comunidade MetaCore.
-          </p>
+          <h2 className="font-rajdhani text-5xl font-bold text-white mb-2 leading-tight">{t("title")}</h2>
+          <p className="text-zinc-500">{t("subtitle")}</p>
         </div>
 
         <div className="relative mb-4">
@@ -222,7 +223,7 @@ export default function TeamFinderPage() {
               onKeyDown={onInputKeyDown}
               onFocus={() => setOpen(true)}
               onBlur={() => setTimeout(() => setOpen(false), 150)}
-              placeholder={atLimit ? "Máximo de 6 Pokémon — remova um pra adicionar outro" : "Buscar Pokémon... ex: Garchomp, Whimsicott"}
+              placeholder={atLimit ? t("searchPlaceholderMax") : t("searchPlaceholder")}
               className="flex-1 bg-transparent text-white placeholder-zinc-600 outline-none text-sm disabled:cursor-not-allowed"
             />
             {query && (
@@ -260,7 +261,7 @@ export default function TeamFinderPage() {
 
         {selected.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-4 p-4 bg-zinc-900/60 border border-zinc-800/60 rounded-xl">
-            <span className="text-zinc-500 text-xs font-mono mr-1">Procurando times com:</span>
+            <span className="text-zinc-500 text-xs font-mono mr-1">{t("lookingFor")}</span>
             {selected.map((name) => (
               <div
                 key={name}
@@ -277,7 +278,7 @@ export default function TeamFinderPage() {
               onClick={() => setSelected([])}
               className="ml-auto flex items-center gap-2 px-5 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 font-medium rounded-xl text-sm transition-all"
             >
-              Limpar time
+              {t("clearTeam")}
             </button>
           </div>
         )}
@@ -290,7 +291,7 @@ export default function TeamFinderPage() {
                 source === "tournament" ? "bg-emerald-500/20 text-emerald-400" : "text-zinc-500 hover:text-zinc-300"
               }`}
             >
-              Campeonatos
+              {t("tabTournament")}
             </button>
             <button
               onClick={() => setSource("community")}
@@ -298,7 +299,7 @@ export default function TeamFinderPage() {
                 source === "community" ? "bg-emerald-500/20 text-emerald-400" : "text-zinc-500 hover:text-zinc-300"
               }`}
             >
-              Comunidade
+              {t("tabCommunity")}
             </button>
           </div>
           <div className="flex bg-zinc-900 border border-zinc-800 rounded-lg p-1">
@@ -308,7 +309,7 @@ export default function TeamFinderPage() {
                 sort === "best" ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-zinc-300"
               }`}
             >
-              Melhor colocação
+              {t("sortBest")}
             </button>
             <button
               onClick={() => setSort("recent")}
@@ -316,7 +317,7 @@ export default function TeamFinderPage() {
                 sort === "recent" ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-zinc-300"
               }`}
             >
-              Mais recentes
+              {t("sortRecent")}
             </button>
           </div>
         </div>
@@ -327,16 +328,16 @@ export default function TeamFinderPage() {
               <h3 className="font-rajdhani text-3xl font-bold text-white leading-tight">
                 {isDefault
                   ? source === "community"
-                    ? "Times da comunidade"
-                    : "Times mais usados"
-                  : `${results.length}+ ${results.length === 1 ? "time encontrado" : "times encontrados"}`}
+                    ? t("communityTeamsTitle")
+                    : t("mostUsedTeamsTitle")
+                  : t(results.length === 1 ? "foundTeam" : "foundTeams", { count: results.length })}
               </h3>
               <p className="text-zinc-500 text-sm mt-1">
                 {source === "community"
-                  ? "Times públicos salvos por outros jogadores do MetaCore."
+                  ? t("communityDesc")
                   : isDefault
-                    ? "Comece por aqui: os times reais mais bem colocados no meta atual — bom ponto de partida pra saber em quais Pokémon focar."
-                    : "Times reais de torneios."}
+                    ? t("mostUsedDesc")
+                    : t("realTeamsDesc")}
               </p>
             </div>
 
@@ -345,10 +346,10 @@ export default function TeamFinderPage() {
             {results.length === 0 && (
               <div className="text-center py-16 text-zinc-500 text-sm">
                 {source === "community"
-                  ? "Nenhum time público da comunidade encontrado ainda."
+                  ? t("noCommunity")
                   : isDefault
-                    ? "Ainda não temos times importados. Tente de novo em alguns minutos."
-                    : "Nenhum time real encontrado com essa combinação ainda. Tente menos Pokémon ou outra combinação."}
+                    ? t("noDefault")
+                    : t("noResults")}
               </div>
             )}
 
@@ -362,13 +363,13 @@ export default function TeamFinderPage() {
                           <PlacingBadge placing={team.placing} />
                         ) : (
                           <span className="px-2 py-0.5 rounded-full text-xs font-bold border font-mono leading-none text-sky-300 bg-sky-400/10 border-sky-400/30">
-                            Comunidade
+                            {t("tabCommunity")}
                           </span>
                         )}
                         <span className="text-white font-semibold text-sm truncate">{team.title}</span>
                       </div>
                       <div className="text-zinc-500 text-xs mt-1">
-                        {team.subtitle} · {new Date(team.date).toLocaleDateString("pt-BR")}
+                        {team.subtitle} · {new Date(team.date).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US")}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
@@ -377,7 +378,7 @@ export default function TeamFinderPage() {
                           href={`/teams/${team.slug}`}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 text-xs font-medium transition-all"
                         >
-                          <Eye className="w-3.5 h-3.5" /> Ver time
+                          <Eye className="w-3.5 h-3.5" /> {t("viewTeam")}
                         </Link>
                       ) : (
                         <button
@@ -390,7 +391,7 @@ export default function TeamFinderPage() {
                           ) : (
                             <Pencil className="w-3.5 h-3.5" />
                           )}
-                          {importingId === team.id ? "Abrindo..." : "Abrir no Builder"}
+                          {importingId === team.id ? t("opening") : t("openInBuilder")}
                         </button>
                       )}
                       <button
@@ -456,7 +457,7 @@ export default function TeamFinderPage() {
               <div ref={sentinelRef} className="flex justify-center mt-6 h-10">
                 {loadingMore && (
                   <span className="flex items-center gap-2 text-zinc-500 text-sm">
-                    <Loader2 className="w-4 h-4 animate-spin" /> Carregando mais...
+                    <Loader2 className="w-4 h-4 animate-spin" /> {t("loadingMore")}
                   </span>
                 )}
               </div>

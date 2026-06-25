@@ -8,7 +8,9 @@ import { getAbilityDesc, getMoveDesc, getNatureEffect, getTypes } from "@/lib/po
 import { SpriteImg, TypeBadge } from "@/components/pokemon/atoms";
 import { CopyLinkButton } from "@/components/team/CopyLinkButton";
 import { PokepasteButton } from "@/components/team/PokepasteButton";
+import { TeamOwnerLine } from "@/components/team/TeamOwnerLine";
 import { InfoTooltip } from "@/components/builder/InfoTooltip";
+import { T } from "@/components/i18n/T";
 import type { TeamSlot } from "@/lib/team/schema";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +33,7 @@ export default async function PublicTeamPage({ params }: PageProps) {
   if (!team.isPublic && team.userId !== userId) notFound();
 
   const slots = team.content as unknown as TeamSlot[];
-  const ownerDisplayName = team.user.nickname || team.user.name || "Treinador";
+  const ownerDisplayName = team.user.nickname || team.user.name || null;
 
   return (
     <div className="min-h-screen bg-zinc-950 pt-20">
@@ -39,9 +41,7 @@ export default async function PublicTeamPage({ params }: PageProps) {
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
             <h2 className="font-rajdhani text-4xl font-bold text-white mb-1 leading-tight">{team.name}</h2>
-            <p className="text-zinc-500 text-sm">
-              Time criado por <span className="text-zinc-300">{ownerDisplayName}</span>
-            </p>
+            <TeamOwnerLine ownerName={ownerDisplayName} />
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {team.userId === userId && (
@@ -49,7 +49,7 @@ export default async function PublicTeamPage({ params }: PageProps) {
                 href={`/builder?teamId=${team.id}`}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-700 text-zinc-300 text-sm font-medium hover:border-zinc-500 hover:text-white transition-all"
               >
-                <Pencil className="w-4 h-4" /> Editar
+                <Pencil className="w-4 h-4" /> <T ns="common" k="edit" />
               </Link>
             )}
             <PokepasteButton content={slots} />

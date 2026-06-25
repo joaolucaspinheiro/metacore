@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { SpriteImg } from "@/components/pokemon/atoms";
 import { TeamCardActions } from "@/components/team/TeamCardActions";
+import { T } from "@/components/i18n/T";
 import type { TeamSlot } from "@/lib/team/schema";
 
 export default async function MyTeamsPage() {
@@ -16,8 +17,12 @@ export default async function MyTeamsPage() {
     return (
       <div className="min-h-screen bg-zinc-950 pt-20">
         <div className="max-w-3xl mx-auto px-4 py-24 text-center">
-          <h2 className="font-rajdhani text-3xl font-bold text-white mb-3">Você precisa entrar</h2>
-          <p className="text-zinc-500 text-sm">Faça login com Google para ver seus times salvos.</p>
+          <h2 className="font-rajdhani text-3xl font-bold text-white mb-3">
+            <T ns="myTeams" k="needLoginTitle" />
+          </h2>
+          <p className="text-zinc-500 text-sm">
+            <T ns="myTeams" k="needLoginDesc" />
+          </p>
         </div>
       </div>
     );
@@ -29,15 +34,21 @@ export default async function MyTeamsPage() {
     <div className="min-h-screen bg-zinc-950 pt-20">
       <div className="max-w-5xl mx-auto px-4 py-10">
         <div className="mb-8">
-          <h2 className="font-rajdhani text-5xl font-bold text-white mb-2 leading-tight">Meus times</h2>
-          <p className="text-zinc-500 text-sm">{teams.length} time(s) salvo(s).</p>
+          <h2 className="font-rajdhani text-5xl font-bold text-white mb-2 leading-tight">
+            <T ns="myTeams" k="title" />
+          </h2>
+          <p className="text-zinc-500 text-sm">
+            <T ns="myTeams" k="countLabel" vars={{ count: teams.length }} />
+          </p>
         </div>
 
         {teams.length === 0 && (
           <div className="text-center py-16">
-            <p className="text-zinc-500 text-sm mb-4">Você ainda não salvou nenhum time.</p>
+            <p className="text-zinc-500 text-sm mb-4">
+              <T ns="myTeams" k="empty" />
+            </p>
             <Link href="/builder" className="text-emerald-400 hover:text-emerald-300 text-sm font-medium">
-              Montar meu primeiro time →
+              <T ns="myTeams" k="buildFirst" />
             </Link>
           </div>
         )}
